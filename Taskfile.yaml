@@ -1,9 +1,12 @@
 version: 3
 
 tasks:
+  default:
+    cmds:
+      - go run *.go
   build:
     cmds:
-      - rm -r bin
+      - rm -rf bin
       - mkdir bin
       - GOOS=windows GOARCH=amd64 go build -ldflags -H=windowsgui -o bin/clipserver.exe .
       - cp bin/*.exe ~/Sync

@@ -4,14 +4,17 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/charmbracelet/log"
-	"github.com/gen2brain/beeep"
-	"golang.design/x/clipboard"
 	"net"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/charmbracelet/log"
+	"github.com/gen2brain/beeep"
+	"golang.design/x/clipboard"
 )
+
+const port = 8090
 
 type JsonResponse struct {
 	Timestamp string `json:"timestamp"`
@@ -33,6 +36,7 @@ func GetLocalIP() net.IP {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	defer conn.Close()
 
 	localAddress := conn.LocalAddr().(*net.UDPAddr)
@@ -45,7 +49,8 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		_, err := fmt.Fprint(w, "ClipServer is running")
+		s := fmt.Sprintf("ClipServer is running %s:%d", GetLocalIP(), port)
+		_, err := fmt.Fprint(w, s)
 		if err != nil {
 			return
 		}
@@ -110,9 +115,11 @@ func main() {
 		}
 	})
 
-	fmt.Printf("Listening on %s:%s", GetLocalIP(), "8090\n")
+	fmt.Printf("Listening on %s:%d\n", GetLocalIP(), port)
 
-	err := http.ListenAndServe(":8090", mux)
+	addr := fmt.Sprintf(":%d", port)
+
+	err := http.ListenAndServe(addr, mux)
 	if err != nil {
 		log.Fatalf(err.Error())
 		return
